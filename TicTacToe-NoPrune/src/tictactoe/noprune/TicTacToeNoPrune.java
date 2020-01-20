@@ -6,6 +6,7 @@
 package tictactoe.noprune;
 
 import java.util.Scanner;
+import java.util.Random;
 
 /**
  * 
@@ -20,8 +21,11 @@ public class TicTacToeNoPrune {
     public static void main(String[] args) {
         initialize();
         initializeVictoryStates();
-        if (gameType() == 1)
-            System.out.println("not implemented");
+        if (gameType() == 1) {
+            System.out.println("Human will go first.");
+            System.out.println();
+            computerGame();
+        }
         else {
             System.out.println();
             humanGame();
@@ -52,12 +56,34 @@ public class TicTacToeNoPrune {
         board = new Board(b, 9, 0, '-');
     }
     
+    public static void computerGame() {
+        printBoard();
+        while (true) {
+            currentPlayer = 'X';
+            System.out.println("Human move:");
+            humanMove();
+            printBoard();
+            if (checkVictoryStates()) {
+                System.out.println("Human wins!");
+                System.exit(0);
+            }
+            currentPlayer = 'O';
+            System.out.println("Computer move:");
+            computerMove();
+            printBoard();
+            if (checkVictoryStates()) {
+                System.out.println("Computer wins!");
+                System.exit(0);
+            }
+        }
+    }
+    
     public static void humanGame() {
         printBoard();
         while (true) {
             currentPlayer = 'X';
             System.out.println("Player 1 move:");
-            makeMove();
+            humanMove();
             printBoard();
             if (checkVictoryStates()) {
                 System.out.println("Player 1 wins!");
@@ -65,7 +91,7 @@ public class TicTacToeNoPrune {
             }
             currentPlayer = 'O';
             System.out.println("Player 2 move:");
-            makeMove();
+            humanMove();
             printBoard();
             if (checkVictoryStates()) {
                 System.out.println("Player 2 wins!");
@@ -74,7 +100,16 @@ public class TicTacToeNoPrune {
         }
     }
     
-    public static void makeMove() {
+    public static void computerMove() {
+        Random rng = new Random();
+        int move = rng.nextInt(9);
+        if (board.isValidMove(move))
+            board.addMove(move, currentPlayer);
+        else
+            computerMove();
+    }
+    
+    public static void humanMove() {
         Scanner in = new Scanner(System.in);
         System.out.print("Enter move (0-8): ");
         int input = in.nextInt();
@@ -82,7 +117,7 @@ public class TicTacToeNoPrune {
             board.addMove(input, currentPlayer);
         else {
             System.out.println("This is invalid, make a valid move.");
-            makeMove();
+            humanMove();
         }
         System.out.println();
     }
