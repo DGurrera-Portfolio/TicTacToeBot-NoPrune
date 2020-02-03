@@ -14,13 +14,14 @@ import java.util.Random;
  */
 public class TicTacToeNoPrune {
 
+    public static Game game;
     public static Board board;
     public static char currentPlayer;
+    public static LinkedList gameTree;
     public static int[][] victoryStates;
     
     public static void main(String[] args) {
         initialize();
-        initializeVictoryStates();
         if (gameType() == 1) {
             System.out.println("Human will go first.");
             System.out.println();
@@ -49,21 +50,24 @@ public class TicTacToeNoPrune {
     }
     
     public static void initialize() {
+        game = new Game();
         char[] b = new char[9];
         for(int i = 0; i < 9; ++i) {
             b[i] = '-';
         }
         board = new Board(b, 9, 0, '-');
+        gameTree = new LinkedList();
     }
     
     public static void computerGame() {
+        initializeGameTree();
         printBoard();
         while (true) {
             currentPlayer = 'X';
             System.out.println("Human move:");
             humanMove();
             printBoard();
-            if (checkVictoryStates()) {
+            if (board.checkVictoryStates(currentPlayer, board)) {
                 System.out.println("Human wins!");
                 System.exit(0);
             }
@@ -71,7 +75,7 @@ public class TicTacToeNoPrune {
             System.out.println("Computer move:");
             computerMove();
             printBoard();
-            if (checkVictoryStates()) {
+            if (board.checkVictoryStates(currentPlayer, board)) {
                 System.out.println("Computer wins!");
                 System.exit(0);
             }
@@ -85,7 +89,7 @@ public class TicTacToeNoPrune {
             System.out.println("Player 1 move:");
             humanMove();
             printBoard();
-            if (checkVictoryStates()) {
+            if (board.checkVictoryStates(currentPlayer, board)) {
                 System.out.println("Player 1 wins!");
                 System.exit(0);
             }
@@ -93,7 +97,7 @@ public class TicTacToeNoPrune {
             System.out.println("Player 2 move:");
             humanMove();
             printBoard();
-            if (checkVictoryStates()) {
+            if (board.checkVictoryStates(currentPlayer, board)) {
                 System.out.println("Player 2 wins!");
                 System.exit(0);
             }
@@ -129,24 +133,18 @@ public class TicTacToeNoPrune {
         System.out.println();
     }
     
-    public static boolean checkVictoryStates() {
-        char[] b = board.getBoard();
-        for( int i = 0; i < 8; ++i)
-            if(b[victoryStates[i][0]] == currentPlayer && b[victoryStates[i][1]] == currentPlayer && b[victoryStates[i][2]] == currentPlayer)
-                return true;
-        return false;
+    public static void initializeGameTree() {
+        char[] b = {'-','-','-','-','-','-','-','-','-'};
+        gameTree.addNode(new Node(new Board(b, 9, 0, '-'), null), '-');
+        buildGameTree(gameTree.getHead(), 0, 'X');
     }
-
-    private static void initializeVictoryStates() {
-        victoryStates = new int[][]{ 
-            {0, 1, 2},
-            {0, 4, 8},
-            {0, 3, 6},
-            {1, 4, 7},
-            {2, 4, 6},
-            {2, 5, 8},
-            {3, 4, 5},
-            {6, 7, 8}
-        };
+    
+    public static void buildGameTree(Node n, int x, char cp) {
+        for (int i = 0; i < 9; ++i) {
+            if (n.isValidMove(i)) {
+                Node next = new Node(new Board(n.copyBoard(), n.getEmptySpaces() - 1, i, cp), n);
+                gameTree.addNode(next, x);
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ package tictactoe.noprune;
  *
  * @author CL4P-TP
  */
-public class Board {
+public class Board extends Game{
     
     private char[] board;
     private int emptySpaces;
@@ -35,6 +35,13 @@ public class Board {
     
     public boolean isValidMove(int m) {
         return board[m] == '-';
+    }
+    
+    public char[] copyBoard() {
+        char[] b = new char[9];
+        for (int i = 0; i < 9; ++i)
+            b[i] = board[i];
+        return b;
     }
     
     public void addMove(int m, char p) {
