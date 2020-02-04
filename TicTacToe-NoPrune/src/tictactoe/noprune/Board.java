@@ -14,12 +14,14 @@ public class Board extends Game{
     private char[] board;
     private int emptySpaces;
     private char player;
+    private int move;
     
     Board(char[] b, int es, int m, char p) {
         copyBoard(b);
         emptySpaces = es;
         player = p;
-        makeMove(m);
+        move = m;
+        makeMove(move);
     }
     
     private void copyBoard(char[] b) {
@@ -48,7 +50,8 @@ public class Board extends Game{
         board[m] = p;
     }
     
-    public char[] getBoard() { return board; }
+    public int getMove() {return move;}
+    public char[] getBoard() { return copyBoard(); }
     public int getEmptySpaces() { return emptySpaces; }
     public char getPlayer() {return player; }
 }

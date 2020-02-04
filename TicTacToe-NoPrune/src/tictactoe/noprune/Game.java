@@ -18,6 +18,8 @@ public class Game {
     }
     
     public boolean checkVictoryStates(char currentPlayer, Board board) {
+        if (currentPlayer == '-')
+            return false;
         char[] b = board.getBoard();
         for( int i = 0; i < 8; ++i)
             if(b[victoryStates[i][0]] == currentPlayer && b[victoryStates[i][1]] == currentPlayer && b[victoryStates[i][2]] == currentPlayer)

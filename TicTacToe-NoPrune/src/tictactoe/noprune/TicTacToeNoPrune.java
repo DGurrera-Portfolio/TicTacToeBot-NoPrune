@@ -61,6 +61,8 @@ public class TicTacToeNoPrune {
     
     public static void computerGame() {
         initializeGameTree();
+        System.out.println("Game Tree size: " + gameTree.getSize());
+        System.out.println();
         printBoard();
         while (true) {
             currentPlayer = 'X';
@@ -105,24 +107,54 @@ public class TicTacToeNoPrune {
     }
     
     public static void computerMove() {
-        Random rng = new Random();
-        int move = rng.nextInt(9);
-        if (board.isValidMove(move))
-            board.addMove(move, currentPlayer);
-        else
-            computerMove();
+        System.out.println("Amount of children for current board: " + gameTree.getHead().getNumOfChildren());
+        Node currentBoard = gameTree.getHead();
+        
+        Node bestBoard = currentBoard.getNextAt(0);
+        int score = currentBoard.getNextAt(0).getScore();
+        
+        for(int i = 0; i < currentBoard.getNumOfChildren(); ++i){
+            if (currentBoard.getNextAt(i).isLeaf()) {
+                board = currentBoard.getNextAt(i).getBoardRef();
+                gameTree.setHead(currentBoard.getNextAt(i));
+                return;
+            }
+            
+            if (currentBoard.getNextAt(i).getScore() > score) {
+                score = currentBoard.getNextAt(i).getScore();
+                bestBoard = currentBoard.getNextAt(i);
+            }
+        }
+        
+        System.out.println("Move score: " + score);
+        
+        board = bestBoard.getBoardRef();
+        gameTree.setHead(bestBoard);
+        
+//        Random rng = new Random();
+//        int move = rng.nextInt(9);
+//        if (board.isValidMove(move))
+//            board.addMove(move, currentPlayer);
+//        else
+//            computerMove();
     }
     
     public static void humanMove() {
         Scanner in = new Scanner(System.in);
+        System.out.println("Amount of children for current board: " + gameTree.getHead().getNumOfChildren());
         System.out.print("Enter move (0-8): ");
         int input = in.nextInt();
-        if (board.isValidMove(input))
-            board.addMove(input, currentPlayer);
+        if (board.isValidMove(input)) {
+            for (int i = 0; i < gameTree.getHead().getNumOfChildren(); ++i){
+                if (gameTree.getHead().getNextAt(i).getMove() == input)
+                    gameTree.setHead(gameTree.getHead().getNextAt(i));
+            }
+        }
         else {
             System.out.println("This is invalid, make a valid move.");
             humanMove();
         }
+        board = gameTree.getHead().getBoardRef();
         System.out.println();
     }
     
@@ -135,16 +167,33 @@ public class TicTacToeNoPrune {
     
     public static void initializeGameTree() {
         char[] b = {'-','-','-','-','-','-','-','-','-'};
-        gameTree.addNode(new Node(new Board(b, 9, 0, '-'), null), '-');
+        gameTree.addNode(new Node(new Board(b, 9, 0, '-'), null), 0);
+        long startTime = System.currentTimeMillis();
+        System.out.println("Initializing Game Tree...");
         buildGameTree(gameTree.getHead(), 0, 'X');
+        long endTime = System.currentTimeMillis();
+        System.out.println("Initialization completed: " + ((endTime - startTime)) + " milliseconds");
     }
     
-    public static void buildGameTree(Node n, int x, char cp) {
+    public static void buildGameTree(Node parent, int childNum, char currPlayer) {
+        int child = childNum;
         for (int i = 0; i < 9; ++i) {
-            if (n.isValidMove(i)) {
-                Node next = new Node(new Board(n.copyBoard(), n.getEmptySpaces() - 1, i, cp), n);
-                gameTree.addNode(next, x);
+            if (parent.isValidMove(i)) {
+                Node next = new Node(new Board(parent.copyBoard(), parent.getEmptySpaces() - 1, i, currPlayer), parent);
+                gameTree.addNode(next, child);
+                ++child;
+                if(!next.isLeaf()) {
+                    if (currPlayer == 'X')
+                        buildGameTree(next, 0, 'O');
+                    else
+                        buildGameTree(next, 0, 'X');
+                }
             }
         }
+        
+        int score = 0;
+        for (int i = 0; i < parent.getNumOfChildren(); ++i)
+            score += parent.getNextAt(i).getScore();
+        parent.setScore(score);
     }
 }
