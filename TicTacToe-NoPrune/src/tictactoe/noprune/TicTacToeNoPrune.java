@@ -16,7 +16,7 @@ public class TicTacToeNoPrune {
 
     public static Game game;
     public static Board board;
-    public static char currentPlayer;
+    public static char currentPlayer = 'O';
     public static LinkedList gameTree;
     public static int[][] victoryStates;
     
@@ -65,26 +65,28 @@ public class TicTacToeNoPrune {
         System.out.println();
         printBoard();
         while (true) {
-            currentPlayer = 'X';
-            System.out.println("Human move:");
-            humanMove();
+            if (currentPlayer == 'O') {
+                currentPlayer = 'X';
+                System.out.println("Human move:");
+                humanMove();
+            } else {
+                currentPlayer = 'O';
+                System.out.println("Computer move:");
+                computerMove();
+            }
             printBoard();
             if (board.checkVictoryStates(currentPlayer, board)) {
                 System.out.println("Human wins!");
                 System.exit(0);
-            }
-            currentPlayer = 'O';
-            System.out.println("Computer move:");
-            computerMove();
-            printBoard();
-            if (board.checkVictoryStates(currentPlayer, board)) {
-                System.out.println("Computer wins!");
+            } else if (board.getEmptySpaces() == 0) {
+                System.out.println("It's a draw!");
                 System.exit(0);
             }
         }
     }
     
     public static void humanGame() {
+        initializeGameTree();
         printBoard();
         while (true) {
             currentPlayer = 'X';
@@ -95,6 +97,10 @@ public class TicTacToeNoPrune {
                 System.out.println("Player 1 wins!");
                 System.exit(0);
             }
+            if (board.getEmptySpaces() == 0) {
+                System.out.println("It's a draw!");
+                System.exit(0);
+            }
             currentPlayer = 'O';
             System.out.println("Player 2 move:");
             humanMove();
@@ -103,12 +109,21 @@ public class TicTacToeNoPrune {
                 System.out.println("Player 2 wins!");
                 System.exit(0);
             }
+            if (board.getEmptySpaces() == 0) {
+                System.out.println("It's a draw!");
+                System.exit(0);
+            }
         }
     }
     
     public static void computerMove() {
-        System.out.println("Amount of children for current board: " + gameTree.getHead().getNumOfChildren());
+        System.out.println();
         Node currentBoard = gameTree.getHead();
+        
+        for (int i = 0; i < currentBoard.getNumOfChildren(); ++i)
+            System.out.println("Child " + i + ": " + currentBoard.getNextAt(i).getScore());
+        
+        System.out.println();
         
         Node bestBoard = currentBoard.getNextAt(0);
         int score = currentBoard.getNextAt(0).getScore();
@@ -126,31 +141,26 @@ public class TicTacToeNoPrune {
             }
         }
         
-        System.out.println("Move score: " + score);
-        
         board = bestBoard.getBoardRef();
         gameTree.setHead(bestBoard);
-        
-//        Random rng = new Random();
-//        int move = rng.nextInt(9);
-//        if (board.isValidMove(move))
-//            board.addMove(move, currentPlayer);
-//        else
-//            computerMove();
     }
     
     public static void humanMove() {
         Scanner in = new Scanner(System.in);
-        System.out.println("Amount of children for current board: " + gameTree.getHead().getNumOfChildren());
+        
+        int numOfChildren = gameTree.getHead().getNumOfChildren();
+        Node h = gameTree.getHead();
+        
         System.out.print("Enter move (0-8): ");
+        
         int input = in.nextInt();
+        
         if (board.isValidMove(input)) {
-            for (int i = 0; i < gameTree.getHead().getNumOfChildren(); ++i){
-                if (gameTree.getHead().getNextAt(i).getMove() == input)
+            for (int i = 0; i < numOfChildren; ++i){
+                if (h.getNextAt(i).getMove() == input)
                     gameTree.setHead(gameTree.getHead().getNextAt(i));
             }
-        }
-        else {
+        } else {
             System.out.println("This is invalid, make a valid move.");
             humanMove();
         }

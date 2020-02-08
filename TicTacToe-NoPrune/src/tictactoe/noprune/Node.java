@@ -21,10 +21,14 @@ public class Node {
         board = b;
         if (b.getEmptySpaces() == 0 || b.checkVictoryStates(b.getPlayer(), board)) {
             leaf = true;
-            if (board.getPlayer() == 'X')
-                score = -1;
-            else
-                score = 1;
+            if (!b.checkVictoryStates(b.getPlayer(), board)) {
+                score = 0;
+            } else {
+                if (board.getPlayer() == 'X')
+                    score = -1;
+                else
+                    score = 1;
+            }
         } else {
             leaf = false;
             next = new Node[board.getEmptySpaces()];
