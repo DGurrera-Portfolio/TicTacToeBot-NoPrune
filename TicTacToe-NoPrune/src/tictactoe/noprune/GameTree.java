@@ -9,12 +9,13 @@ package tictactoe.noprune;
  *
  * @author CL4P-TP
  */
-public class LinkedList {
+public class GameTree {
     
+    private Node gameStart;
     private Node head;
     private int size;
     
-    LinkedList() {
+    GameTree() {
         head = null;
         size = 0;
     }
@@ -29,6 +30,8 @@ public class LinkedList {
         }
     }
     
+    public void setGameStart(Node n) {gameStart = n;}
+    public Node getGameStart() {return gameStart;}
     public void setHead(Node n) {head = n;}
     public Node getHead() {return head;}
     public int getSize() {return size;}
